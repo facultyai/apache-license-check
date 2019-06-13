@@ -13,12 +13,18 @@
 # limitations under the License.
 
 
+from pathlib import Path
 from setuptools import setup
+
+
+SOURCE_ROOT = Path(__file__).parent
+README = SOURCE_ROOT / "README.rst"
 
 
 setup(
     name="apache-license-check",
     description="CLI tool to check source files for Apache License headers.",
+    long_description=README.read_text(),
     url="https://faculty.ai/",
     author="Faculty",
     author_email="opensource@faculty.ai",
