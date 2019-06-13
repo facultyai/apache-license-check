@@ -36,4 +36,7 @@ setup(
     entry_points={
         "console_scripts": ["apache-license-check=apache_license_check:cli"]
     },
+    project_urls={
+        "GitHub": "https://github.com/facultyai/apache-license-check"
+    },
 )
