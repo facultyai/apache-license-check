@@ -36,13 +36,15 @@ LICENSE_HEADER = """
 LICENSE_HEADER_LINES = LICENSE_HEADER.strip().split("\n")
 
 
-def python_files(path, include_hidden):
+def python_files(path, include_hidden, excludes):
     if not include_hidden and path.match(".*"):
         # Path is hidden, ignore:
         return
+    elif path in excludes:
+        return
     elif path.is_dir():
         for child in path.iterdir():
-            yield from python_files(child, include_hidden)
+            yield from python_files(child, include_hidden, excludes)
     elif path.is_file() and path.suffix == ".py":
         yield path
 
@@ -107,6 +109,13 @@ def cli():
         help="also check hidden files and directories",
     )
     parser.add_argument(
+        "--exclude",
+        nargs="+",
+        type=Path,
+        default=[],
+        help="path(s) of files or directories to ignore",
+    )
+    parser.add_argument(
         "--copyright",
         help="check that the header has a copyright notice containing the "
         + "provided substring",
@@ -116,7 +125,9 @@ def cli():
     success = True
 
     for passed_path in args.path:
-        for file in python_files(passed_path, args.include_hidden):
+        for file in python_files(
+            passed_path, args.include_hidden, args.exclude
+        ):
 
             output = str(file)
 
