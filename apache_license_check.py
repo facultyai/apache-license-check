@@ -1,4 +1,4 @@
-# Copyright 2019 Faculty Science Limited
+# Copyright 2019-2020 Faculty Science Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -47,6 +47,11 @@ def python_files(path, include_hidden, excludes):
             yield from python_files(child, include_hidden, excludes)
     elif path.is_file() and path.suffix == ".py":
         yield path
+
+
+def is_empty(path):
+    content = path.read_text()
+    return len(content.strip()) == 0
 
 
 def read_header_lines(path):
@@ -109,6 +114,12 @@ def cli():
         help="also check hidden files and directories",
     )
     parser.add_argument(
+        "--include-empty",
+        action="store_true",
+        help="require empty files (e.g. empty __init__.py), which are skipped "
+        + "by default",
+    )
+    parser.add_argument(
         "--exclude",
         nargs="+",
         type=Path,
@@ -131,16 +142,21 @@ def cli():
 
             output = str(file)
 
-            header_lines = read_header_lines(file)
+            if not args.include_empty and is_empty(file):
+                output += " " + colored("EMPTY", "yellow")
+            else:
+                header_lines = read_header_lines(file)
 
-            if args.copyright is not None:
-                has_copyright = check_copyright(header_lines, args.copyright)
-                output += " Copyright: " + format_success(has_copyright)
-                success = success and has_copyright
+                if args.copyright is not None:
+                    has_copyright = check_copyright(
+                        header_lines, args.copyright
+                    )
+                    output += " Copyright: " + format_success(has_copyright)
+                    success = success and has_copyright
 
-            has_license = check_license(header_lines)
-            output += " License: " + format_success(has_license)
-            success = success and has_license
+                has_license = check_license(header_lines)
+                output += " License: " + format_success(has_license)
+                success = success and has_license
 
             print(output)
 
