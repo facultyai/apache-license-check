@@ -143,7 +143,7 @@ def cli():
             output = str(file)
 
             if not args.include_empty and is_empty(file):
-                output += " " + colored("SKIPPED", "yellow")
+                output += " " + colored("EMPTY", "yellow")
             else:
                 header_lines = read_header_lines(file)
 
